@@ -20,11 +20,6 @@ The goal was to explre:
 - How to repeat patterns using UV tiling
 - Building more complex visuals  from simple math
 
-##  Study 2: Animated Mask Material
-
-###  Preview
-![Animated Mask](assets/simpleMask.gif)
-
 ### Simplified HLSL Logic
 ```hlsl
 // gear
@@ -49,6 +44,11 @@ float r = length(p);
 float petal = 0.5 + 0.5 * cos(a * petals);
 return r <= radius * petal;
 ```
+
+##  Study 2: Animated Mask Material
+
+###  Preview
+![Animated Mask](assets/simpleMask.gif)
 
 ---
 
