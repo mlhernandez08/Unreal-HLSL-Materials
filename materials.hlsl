@@ -47,6 +47,19 @@ float petals = 5.0;
 float r = length(p);
 float petal = 0.5 + 0.5 * cos(a * petals);
 return r <= radius * petal;
+// heart shape
+float2 cellPos = frac(uv * gridSize);
+float2 centered = (cellPos - 0.5) * 2.0;
+centered /= radius;
+
+float x = centered.x;
+float y = -centered.y - 0.3; 
+
+float a = x * x + y * y - 1.0;
+float b = x * x * y * y * y;
+float heart = a * a * a - b;
+
+return heart <= 0.0 ? 1.0 : 0.0;
 
 // Tiling/Brick Generator
 
@@ -92,3 +105,46 @@ for (int i = 0; i < nSides; i++)
     }
 }
 return(result);
+
+// Animated movement and color
+float result = 0;
+
+for (int i = 0; i < nSides; i++)
+{
+    for(int j = 0; j < nCopies; j++)
+    {
+        float angle = (i / nSides) * sin(time * 2) * (3.14 * 2);
+        float2 pos = center + (j / nCopies) * radius * float2(cos(1 - angle) - sin(time), 
+                                                              sin(1 - angle - sin(time)));
+        result += length(pos - uv) < size;
+    }
+}
+outEmissive = result * float3(sin(time), 0, 0.1);
+return(result);
+
+//Ray marching
+
+float3 rayOrigin = 1- (viewDir - worldPos);
+float3 rayStep = viewDir * -1;
+
+float3 lightDirection = normalize(lightPos);
+
+for(int i = 0; i < 256; i++)
+{
+    float dist = length(rayOrigin - sphereCenter) - sphereRadius;
+    if(dist < 0.01)
+    {
+        float3 normal = normalize(rayOrigin - sphereCenter);
+        float diffuse = max(dot(normal, lightDirection), 0);
+        float3 reflection = reflect(lightDirection, normal);
+        float3 viewDirection = normalize(-worldPos - rayOrigin);
+        float specular = pow(max(dot(reflection, viewDirection), 0), 200);
+
+        return (diffuse * float3(1,0,0)) + (specular * float3(1, 1, 1));
+    }
+
+    opacityMask = 1;
+    rayOrigin += rayStep;
+ }
+opacityMask = 0;
+return float3(0,0,0);
