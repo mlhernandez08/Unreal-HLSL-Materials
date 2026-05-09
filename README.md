@@ -5,6 +5,41 @@ This repository contains a collection of HLSL-based material experiments and tec
 The goal is to explore real-time shader techniques, material authoring, and procedural effects using Unreal’s Custom HLSL nodes.
 
 ---
+##  Study 3: Raymarching 
+
+### Preview
+
+## Overview
+This study focuses on creating different shapes and effects through raymarching in HLSL.
+
+### Simplified HLSL Logic
+```hlsl
+// Basic Sphere
+float3 rayOrigin = 1- (viewDir - worldPos);
+float3 rayStep = viewDir * -1;
+
+float3 lightDirection = normalize(lightPos);
+
+for(int i = 0; i < 256; i++)
+{
+    float dist = length(rayOrigin - sphereCenter) - sphereRadius;
+    if(dist < 0.01)
+    {
+        float3 normal = normalize(rayOrigin - sphereCenter);
+        float diffuse = max(dot(normal, lightDirection), 0);
+        float3 reflection = reflect(lightDirection, normal);
+        float3 viewDirection = normalize(-worldPos - rayOrigin);
+        float specular = pow(max(dot(reflection, viewDirection), 0), 200);
+
+        return (diffuse * float3(1,0,0)) + (specular * float3(1, 1, 1));
+    }
+
+    opacityMask = 1;
+    rayOrigin += rayStep;
+ }
+opacityMask = 0;
+return float3(0,0,0);
+```
 
 ##  Study 2: Simple Shapes
 
@@ -45,7 +80,7 @@ float petal = 0.5 + 0.5 * cos(a * petals);
 return r <= radius * petal;
 ```
 
-##  Study 2: Animated Mask Material
+##  Study 1: Animated Mask Material
 
 ###  Preview
 ![Animated Mask](assets/simpleMask.gif)
