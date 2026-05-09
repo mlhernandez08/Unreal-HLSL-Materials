@@ -310,7 +310,12 @@ for(int i = 0; i < 256; i++) // default: 256 Complex Shapes: 128
     // float dist = sdf.mandelbox(rayOrigin / 80.0, 2.0, 0.5, 1.0) * 80.0;
     // JulietSet
     // Try different c values for different shapes
-    float4 c = float4(-0.2, 0.6, 0.2, 0.2);
+    float4 c = float4(
+        -0.2 + sin(time * 0.3) * 0.2,
+        0.6 + cos(time * 0.4) * 0.2,
+        0.2,
+        0.2
+    );
     float dist = sdf.juliaSet(rayOrigin / 60.0, c) * 60.0;
 
     if(dist < 0.01)
@@ -370,13 +375,7 @@ for(int i = 0; i < 256; i++) // default: 256 Complex Shapes: 128
             sdf.mandelbox(float3(rayOrigin.x, rayOrigin.y, rayOrigin.z + eps) / fractalScale, scale, minRadius, fixedRadius) * fractalScale
                 - sdf.mandelbox(float3(rayOrigin.x, rayOrigin.y, rayOrigin.z - eps) / fractalScale, scale, minRadius, fixedRadius) * fractalScale
         ));
-        */
-        float4 c = float4(
-            -0.2 + sin(time * 0.3) * 0.2,
-            0.6 + cos(time * 0.4) * 0.2,
-            0.2,
-            0.2
-        );      
+        */  
         float fractalScale = 60.0;
 
         float3 normal = normalize(float3(
@@ -401,3 +400,20 @@ for(int i = 0; i < 256; i++) // default: 256 Complex Shapes: 128
  }
 opacityMask = 0;
 return float3(0,0,0);
+
+// Raymarch texture in depth
+float3 rayStep = viewDir * -1;
+float4 inputTex = Texture2DSample(texObject, texObjectSampler, uv);
+
+for(int i = 0; i < 50; i++) 
+{
+    if(inputTex.r > 0.1 && inputTex.g > 0.1 && inputTex.b > 0.1) 
+    {
+        return float3(i, 0, 0);
+    }
+
+    uv += rayStep * 0.025;
+
+    inputTex = Texture2DSample(texObject, texObjectSampler, uv.xy);
+}
+return inputTex;
